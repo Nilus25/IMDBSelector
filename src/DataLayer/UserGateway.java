@@ -10,7 +10,10 @@ import java.util.List;
 public class UserGateway {
     private String name;
     private List<Movie> seenMovies;
-    private static final String location = "/data/user";
+    private static final String location = "data/user";
+    public UserGateway(String name) {
+        this.name = name;
+    }
     public UserGateway(User user) {
         this.name = user.getName();
         this.seenMovies = user.getSeenMovies();

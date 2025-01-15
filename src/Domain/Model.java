@@ -19,14 +19,15 @@ public class Model {
     private MainView mainView;
     private MainViewController mainViewController;
     private List<Observer> observers;
+
     public Model() {
         observers = new ArrayList<>();
-        mainView = new MainView();
-        mainView.setModel(this);
+        mainView = new MainView(this);
         mainViewController = mainView.initializeController();
         selector = new RandomMovieSelector(this);
         addObserver(mainView);
         addObserver(mainViewController);
+        notifyObservers();
     }
     public void addObserver(Observer observer) {
         observers.add(observer);
@@ -67,9 +68,6 @@ public class Model {
     }
 
     public void newWatchList(String name, List<String> movies) throws WatchListAlreadyExistsException {
-        if (WatchListFinder.findWatchList(name) != null) {
-            throw new WatchListAlreadyExistsException("WatchList already exists");
-        }
         WatchList watchList = new WatchList(name, movies);
         WatchListGateway gateway = new WatchListGateway(watchList);
         gateway.save();
@@ -77,9 +75,6 @@ public class Model {
     }
 
     public void newUser(String name) throws UserAlreadyExistsException {
-        if (UserFinder.findUser(name) != null) {
-            throw new UserAlreadyExistsException("User already exists");
-        }
         User user = new User(name);
         UserGateway gateway = new UserGateway(user);
         gateway.save();
@@ -121,5 +116,13 @@ public class Model {
     }
     public boolean isThereUser() {
         return user != null;
+    }
+
+    public List<String> getAllWatchListsName() {
+        return WatchListFinder.getAllWatchListsName();
+    }
+
+    public List<String> getAllUsersName() {
+        return UserFinder.getAllUsersName();
     }
 }

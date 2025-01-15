@@ -51,11 +51,13 @@ public class MainViewController implements ActionListener, Observer {
     private void handleUserComboBox() {
         String name = (String) view.getUserComboBox().getSelectedItem();
         model.loadUser(name);
+        update();
     }
 
     private void handleWatchListComboBox() {
         String name = (String) view.getWatchListComboBox().getSelectedItem();
         model.loadWatchList(name);
+        update();
     }
     private void handleGenerateButton() {
         model.selectRandomMovie();
@@ -68,6 +70,7 @@ public class MainViewController implements ActionListener, Observer {
             if (watchListName != null && !watchListName.trim().isEmpty()) {
                 try {
                     model.newWatchList(watchListName.trim(), movies);
+                    view.addWatchList(watchListName);
                 } catch (WatchListAlreadyExistsException e) {
                     throwError(e.getMessage());
                 }
@@ -103,6 +106,7 @@ public class MainViewController implements ActionListener, Observer {
         if (userName != null && !userName.trim().isEmpty()) {
             try {
                 model.newUser(userName.trim());
+                view.addUser(userName);
             } catch (UserAlreadyExistsException e) {
                 throwError(e.getMessage());
             }
@@ -137,9 +141,8 @@ public class MainViewController implements ActionListener, Observer {
     private void handleNotSeenSelectorModeRadioButton() {
         model.setModeNotSeen();
     }
-
     @Override
     public void update() {
-        // Update the view based on changes in the model
+        view.update();
     }
 }

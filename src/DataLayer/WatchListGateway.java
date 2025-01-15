@@ -11,10 +11,13 @@ import java.util.List;
 public class WatchListGateway {
     private String name;
     private List<Movie> watchList;
-    private static final String location = "/data/watchlist";
+    private static final String location = "data/watchlist";
     public WatchListGateway(WatchList watchList){
         this.name = watchList.getName();
         this.watchList = watchList.getWatchList();
+    }
+    public WatchListGateway(String name){
+        this.name = name;
     }
     public String getName() {
         return name;

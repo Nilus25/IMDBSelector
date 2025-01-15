@@ -6,6 +6,7 @@ import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class MainView extends JFrame implements Observer {
     private Model model;
@@ -20,7 +21,8 @@ public class MainView extends JFrame implements Observer {
     private JRadioButton NotSeenSelectorModeRadioButton;
     private JComboBox<String> watchListComboBox;
     private JComboBox<String> userComboBox;
-    public MainView(){
+    public MainView(Model model){
+        this.model = model;
         FlatIntelliJLaf.setup();
         setTitle("Main View");
         setSize(600, 400);
@@ -55,6 +57,8 @@ public class MainView extends JFrame implements Observer {
         NotSeenSelectorModeRadioButton = new JRadioButton("Not Seen");
         SelectorModeButtonGroup.add(RandomSelectorModeRadioButton);
         SelectorModeButtonGroup.add(NotSeenSelectorModeRadioButton);
+        RandomSelectorModeRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        NotSeenSelectorModeRadioButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         selectorModePanel.add(RandomSelectorModeRadioButton);
         selectorModePanel.add(NotSeenSelectorModeRadioButton);
         mainPanel.add(selectorModePanel);
@@ -65,6 +69,13 @@ public class MainView extends JFrame implements Observer {
         watchListPanel.setLayout(new BoxLayout(watchListPanel, BoxLayout.X_AXIS));
         watchListPanel.add(new JLabel("Watch List:"));
         watchListComboBox = new JComboBox<>();
+        ArrayList<String> noms = (ArrayList<String>) model.getAllWatchListsName();
+        if (noms.size() == 0) {
+            watchListComboBox.setEnabled(false);
+        }
+        for (String nom : noms) {
+            watchListComboBox.addItem(nom);
+        }
         watchListPanel.add(watchListComboBox);
         actualizeWatchListButton = new JButton("Actualize");
         watchListPanel.add(actualizeWatchListButton);
@@ -79,6 +90,13 @@ public class MainView extends JFrame implements Observer {
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.X_AXIS));
         userPanel.add(new JLabel("User:"));
         userComboBox = new JComboBox<>();
+        ArrayList<String> noms = (ArrayList<String>) model.getAllUsersName();
+        if (noms.size() == 0) {
+            userComboBox.setEnabled(false);
+        }
+        for (String nom : noms) {
+            userComboBox.addItem(nom);
+        }
         userPanel.add(userComboBox);
         userPanel.add(Box.createHorizontalGlue());
         newUserButton = new JButton("New User");
@@ -109,10 +127,13 @@ public class MainView extends JFrame implements Observer {
         boolean hasUser = model.isThereUser();
         boolean hasWatchList = model.isThereWatchList();
         boolean hasCurrentMovie = model.isThereCurrentMovie();
-
         actualizeWatchListButton.setEnabled(hasWatchList);
         addMovieToSeenButton.setEnabled(hasUser && hasCurrentMovie);
-
+        generateButton.setEnabled(hasUser && hasWatchList);
+        userComboBox.revalidate();
+        userComboBox.repaint();
+        watchListComboBox.revalidate();
+        watchListComboBox.repaint();
     }
 
     public JButton getGenerateButton() {
@@ -153,5 +174,14 @@ public class MainView extends JFrame implements Observer {
 
     public JComboBox<String> getUserComboBox() {
         return userComboBox;
+    }
+
+    public void addWatchList(String watchListName) {
+        watchListComboBox.addItem(watchListName);
+        watchListComboBox.setEnabled(true);
+    }
+    public void addUser(String userName) {
+        userComboBox.addItem(userName);
+        userComboBox.setEnabled(true);
     }
 }
