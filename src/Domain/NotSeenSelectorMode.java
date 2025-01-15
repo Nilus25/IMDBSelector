@@ -1,3 +1,5 @@
+package Domain;
+
 import java.util.List;
 
 public class NotSeenSelectorMode extends SelectorMode {
@@ -7,7 +9,7 @@ public class NotSeenSelectorMode extends SelectorMode {
 
     @Override
     public void netejaMode(List<String> watchListTags) {
-        List<Movie> seenMovies = randomMovieSelector.getUserGateway().getSeenMovies();
+        List<Movie> seenMovies = randomMovieSelector.getUser().getSeenMovies();
         for (Movie movie : seenMovies) {
             watchListTags.remove(movie.getIMDBTag());
         }

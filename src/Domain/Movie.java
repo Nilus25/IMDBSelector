@@ -1,3 +1,8 @@
+package Domain;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Movie {
     private String title;
     private String IMDBTag;
@@ -18,5 +23,11 @@ public class Movie {
         this.IMDBTag = IMDBTag;
         this.URL = URL;
     }
-
+   public List<String> movieToString() {
+        List<String> movie = new ArrayList<>();
+        movie.add(title);
+        movie.add(IMDBTag);
+        movie.add(URL);
+        return movie;
+    }
 }
