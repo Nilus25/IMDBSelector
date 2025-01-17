@@ -5,21 +5,19 @@ import Domain.Exceptions.UserAlreadyExistsException;
 import Domain.Exceptions.WatchListAlreadyExistsException;
 import Domain.Model;
 import Domain.Observer;
-import com.opencsv.CSVReader;
 
-import com.opencsv.exceptions.CsvValidationException;
-
-import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainViewController implements ActionListener, Observer {
+public class MainViewController implements ActionListener {
     private Model model;
     private MainView view;
     private Map<Object, Runnable> actionMap;
@@ -39,6 +37,30 @@ public class MainViewController implements ActionListener, Observer {
         actionMap.put(view.getNotSeenSelectorModeRadioButton(), this::handleNotSeenSelectorModeRadioButton);
         actionMap.put(view.getWatchListComboBox(), this::handleWatchListComboBox);
         actionMap.put(view.getUserComboBox(), this::handleUserComboBox);
+        actionMap.put(view.getDeleteUserButton(), this::handleDeleteUserButton);
+        actionMap.put(view.getDeleteWatchListButton(), this::handleDeleteWatchListButton);
+        actionMap.put(view.getFiltersButton(), this::handleFiltersButton);
+        actionMap.put(view.getViewWatchListButton(), this::handleViewWatchListButton);
+    }
+
+    private void handleViewWatchListButton() {
+    }
+
+    private void handleFiltersButton() {
+    }
+
+    private void handleDeleteWatchListButton() {
+        int response = JOptionPane.showConfirmDialog(view, "Are you sure you want to delete the selected watchlist?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            model.deleteWatchList();
+        }
+    }
+
+    private void handleDeleteUserButton() {
+        int response = JOptionPane.showConfirmDialog(view, "Are you sure you want to delete the selected user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            model.deleteUser();
+        }
     }
 
     @Override
@@ -51,13 +73,11 @@ public class MainViewController implements ActionListener, Observer {
     private void handleUserComboBox() {
         String name = (String) view.getUserComboBox().getSelectedItem();
         model.loadUser(name);
-        update();
     }
 
     private void handleWatchListComboBox() {
         String name = (String) view.getWatchListComboBox().getSelectedItem();
         model.loadWatchList(name);
-        update();
     }
     private void handleGenerateButton() {
         try {
@@ -68,14 +88,13 @@ public class MainViewController implements ActionListener, Observer {
         }
     }
 
-    private void handleNewWatchListButton() {
-        List<String> movies = getMoviesFromCSV();
-        if (movies != null) {
+    private void handleNewWatchListButton(){
+        String data = getDataWatchlist();
+        if (data != null) {
             String watchListName = JOptionPane.showInputDialog(view, "Enter the name of the new watch list:", "New Watch List", JOptionPane.PLAIN_MESSAGE);
             if (watchListName != null && !watchListName.trim().isEmpty()) {
                 try {
-                    model.newWatchList(watchListName.trim(), movies);
-                    view.addWatchList(watchListName);
+                    model.newWatchList(watchListName.trim(), data);
                 } catch (WatchListAlreadyExistsException e) {
                     throwError(e.getMessage());
                 }
@@ -83,27 +102,22 @@ public class MainViewController implements ActionListener, Observer {
         }
     }
 
-    private List<String> getMoviesFromCSV() {
-        List<String> movies = new ArrayList<>();
+    private String getDataWatchlist() {
+        String data = null;
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text files", "csv"));
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
+        fileChooser.setFileFilter(filter);
         int returnValue = fileChooser.showOpenDialog(view);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             java.io.File selectedFile = fileChooser.getSelectedFile();
-            try (CSVReader reader = new CSVReader(new FileReader(selectedFile))) {
-                String[] line;
-                while ((line = reader.readNext()) != null) {
-                    movies.add(String.join(",", line));
-                }
-                return movies;
+            Path path = selectedFile.toPath();
+            try {
+                data = Files.readString(path);
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (CsvValidationException e) {
                 throw new RuntimeException(e);
             }
         }
-        return null;
+        return data;
     }
 
     private void handleNewUserButton() {
@@ -111,7 +125,6 @@ public class MainViewController implements ActionListener, Observer {
         if (userName != null && !userName.trim().isEmpty()) {
             try {
                 model.newUser(userName.trim());
-                view.addUser(userName);
             } catch (UserAlreadyExistsException e) {
                 throwError(e.getMessage());
             }
@@ -133,7 +146,7 @@ public class MainViewController implements ActionListener, Observer {
     }
 
     private void handleActualizeWatchListButton() {
-        List<String> movies = getMoviesFromCSV();
+        String movies = getDataWatchlist();
         if (movies != null) {
             model.actualizeWatchList(movies);
         }
@@ -145,9 +158,5 @@ public class MainViewController implements ActionListener, Observer {
 
     private void handleNotSeenSelectorModeRadioButton() {
         model.setModeNotSeen();
-    }
-    @Override
-    public void update() {
-        view.update();
     }
 }

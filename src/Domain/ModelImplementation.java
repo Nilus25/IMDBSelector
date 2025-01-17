@@ -17,7 +17,9 @@ import java.util.List;
 
 public class ModelImplementation implements Model {
     private User user;
+    private List<String> usersNames;
     private WatchList watchList;
+    private List<String> watchListsNames;
     private RandomMovieSelector selector;
     private Movie currentMovie;
     private MainView mainView;
@@ -25,12 +27,13 @@ public class ModelImplementation implements Model {
     private List<Observer> observers;
 
     public ModelImplementation() {
+        usersNames = UserFinder.getAllUsersName();
+        watchListsNames = WatchListFinder.getAllWatchListsName();
         observers = new ArrayList<>();
         mainView = new MainView(this);
         mainViewController = mainView.initializeController();
         selector = new RandomMovieSelector(this);
         addObserver(mainView);
-        addObserver(mainViewController);
         notifyObservers();
     }
 
@@ -64,12 +67,19 @@ public class ModelImplementation implements Model {
 
     public void setWatchList(WatchList watchList) {
         this.watchList = watchList;
+        if (watchList != null) {
+            System.out.println(watchList.getName());
+        }
         notifyObservers();
     }
     @Override
     public void loadUser(String name) {
         User user = new User(UserFinder.findUser(name));
         setUser(user);
+        Movie lastMovieGenerated = user.getLastMovieGenerated();
+        if (lastMovieGenerated != null) {
+            setCurrentMovie(lastMovieGenerated);
+        }
     }
 
     @Override
@@ -79,22 +89,31 @@ public class ModelImplementation implements Model {
     }
 
     @Override
-    public void newWatchList(String name, List<String> movies) throws WatchListAlreadyExistsException {
+    public void newWatchList(String name, String movies) throws WatchListAlreadyExistsException {
+        if (watchListsNames.contains(name)) {
+            throw new WatchListAlreadyExistsException("WatchList already exists");
+        }
         WatchList watchList = new WatchList(name, movies);
         WatchListGateway gateway = new WatchListGateway(watchList);
         gateway.save();
-        setWatchList(watchList);
+        watchListsNames.add(name);
+        notifyObserverComboBoxes();
+        notifyObservers();
     }
 
     @Override
     public void newUser(String name) throws UserAlreadyExistsException {
-        User user = new User(name);
-        UserGateway gateway = new UserGateway(user);
+        if (usersNames.contains(name)) {
+            throw new UserAlreadyExistsException("User already exists");
+        }
+        UserGateway gateway = new UserGateway(name);
         gateway.save();
-        setUser(user);
+        usersNames.add(name);
+        notifyObserverComboBoxes();
+        notifyObservers();
     }
     @Override
-    public void actualizeWatchList(List<String> movies) {
+    public void actualizeWatchList(String movies) {
         String name = watchList.getName();
         WatchList watchList = new WatchList(name, movies);
         WatchListGateway gateway = new WatchListGateway(watchList);
@@ -115,6 +134,9 @@ public class ModelImplementation implements Model {
     @Override
     public void selectRandomMovie() throws MovieNotFoundException {
         setCurrentMovie(selector.execute());
+        user.setLastMovie(currentMovie);
+        UserGateway gateway = new UserGateway(user);
+        gateway.save();
         notifyObservers();
     }
     @Override
@@ -141,16 +163,50 @@ public class ModelImplementation implements Model {
 
     @Override
     public List<String> getAllWatchListsName() {
-        return WatchListFinder.getAllWatchListsName();
+        return watchListsNames;
     }
 
     @Override
     public List<String> getAllUsersName() {
-        return UserFinder.getAllUsersName();
+        return usersNames;
     }
 
     @Override
     public String getCurrentMovie() {
-        return "";
+        return currentMovie.getName();
+    }
+    @Override
+    public String getLastMovieGenerated() {
+        Movie lastMovieGenerated = user.getLastMovieGenerated();
+        if (lastMovieGenerated == null) {
+            return "";
+        }
+        return lastMovieGenerated.getName();
+    }
+
+    @Override
+    public void deleteWatchList() {
+        watchListsNames.remove(watchList.getName());
+        WatchListGateway gateway = new WatchListGateway(watchList);
+        gateway.delete();
+        watchList = null;
+        notifyObserverComboBoxes();
+        notifyObservers();
+    }
+
+    @Override
+    public void deleteUser() {
+        usersNames.remove(user.getName());
+        UserGateway gateway = new UserGateway(user);
+        gateway.delete();
+        user = null;
+        notifyObserverComboBoxes();
+        notifyObservers();
+    }
+
+    private void notifyObserverComboBoxes() {
+        for (Observer observer : observers) {
+            observer.updateComboBoxes();
+        }
     }
 }

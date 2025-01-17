@@ -5,6 +5,7 @@ import Domain.Classes.WatchList;
 import com.google.gson.Gson;
 
 import java.io.FileWriter;
+import java.nio.file.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,14 @@ public class WatchListGateway {
         Gson gson = new Gson();
         try (FileWriter writer = new FileWriter(location + "/" + name + "_watchlist.json")) {
             gson.toJson(this, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete() {
+        try {
+            Files.delete(Path.of(location + "/" + name + "_watchlist.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }

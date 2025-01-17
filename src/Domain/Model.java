@@ -18,11 +18,11 @@ public interface Model {
 
     void loadWatchList(String name);
 
-    void newWatchList(String name, List<String> movies) throws WatchListAlreadyExistsException;
+    void newWatchList(String name, String movies) throws WatchListAlreadyExistsException;
 
     void newUser(String name) throws UserAlreadyExistsException;
 
-    void actualizeWatchList(List<String> movies);
+    void actualizeWatchList(String movies);
 
     void addMovieToSeen();
 
@@ -43,4 +43,10 @@ public interface Model {
     List<String> getAllUsersName();
 
     String getCurrentMovie();
+
+    String getLastMovieGenerated();
+
+    void deleteWatchList();
+
+    void deleteUser();
 }

@@ -1,25 +1,21 @@
 package Domain.Classes;
 
 import DataLayer.WatchListGateway;
+import com.opencsv.exceptions.CsvValidationException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WatchList {
     private String name;
     private List<Movie> watchList;
-    public WatchList(String name, List<String> watchList){
+    public WatchList(String name, String watchList){
         this.name = name;
-        this.watchList = new ArrayList<>();
-        boolean first = true;
-        for (String infoMovie : watchList) {
-            if (first) {
-                first = false;
-                continue;
-            }
-            String[] infoMovieSplitted = infoMovie.split(",");
-            Movie movie = new Movie(infoMovieSplitted[5], infoMovieSplitted[1], infoMovieSplitted[7]);
-            this.watchList.add(movie);
+        try {
+            this.watchList = CSVParser.parseCSV(watchList);
+        } catch (IOException | CsvValidationException e) {
+            throw new RuntimeException(e);
         }
     }
     public WatchList(WatchListGateway watchList){
