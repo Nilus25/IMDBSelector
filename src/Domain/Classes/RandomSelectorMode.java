@@ -2,7 +2,7 @@ package Domain.Classes;
 
 import java.util.List;
 
-public class RandomSelectorMode extends SelectorMode {
+public class RandomSelectorMode extends SelectorModeAbstract {
 
 
     public RandomSelectorMode(RandomMovieSelector randomMovieSelector) {

@@ -1,5 +1,6 @@
 package Presentation;
 
+import Domain.Exceptions.MovieNotFoundException;
 import Domain.Exceptions.UserAlreadyExistsException;
 import Domain.Exceptions.WatchListAlreadyExistsException;
 import Domain.Model;
@@ -59,7 +60,12 @@ public class MainViewController implements ActionListener, Observer {
         update();
     }
     private void handleGenerateButton() {
-        model.selectRandomMovie();
+        try {
+            model.selectRandomMovie();
+        }
+        catch (MovieNotFoundException e) {
+            throwError(e.getMessage());
+        }
     }
 
     private void handleNewWatchListButton() {

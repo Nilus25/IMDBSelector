@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WatchListGateway {
@@ -18,6 +19,7 @@ public class WatchListGateway {
     }
     public WatchListGateway(String name){
         this.name = name;
+        this.watchList = new ArrayList<>();
     }
     public String getName() {
         return name;

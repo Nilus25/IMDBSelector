@@ -1,18 +1,11 @@
 package Domain.Classes;
 
+import Domain.Exceptions.MovieNotFoundException;
+
 import java.util.List;
 
-public abstract class SelectorMode {
-    protected RandomMovieSelector randomMovieSelector;
-    public SelectorMode(RandomMovieSelector randomMovieSelector) {
-        this.randomMovieSelector = randomMovieSelector;
-    }
-    public String selectRandomMovie(){
-        WatchList watchList = randomMovieSelector.getWatchList();
-        List<String> watchListTags = watchList.getTags();
-        netejaMode(watchListTags);
-        return watchListTags.get((int) (Math.random() * watchListTags.size()));
-    }
+public interface SelectorMode {
+    String selectRandomMovie() throws MovieNotFoundException;
 
-    public abstract void netejaMode(List<String> watchListTags);
+    void netejaMode(List<String> watchListTags);
 }

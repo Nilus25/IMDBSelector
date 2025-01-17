@@ -2,7 +2,7 @@ package Domain.Classes;
 
 import java.util.List;
 
-public class NotSeenSelectorMode extends SelectorMode {
+public class NotSeenSelectorMode extends SelectorModeAbstract {
     public NotSeenSelectorMode(RandomMovieSelector randomMovieSelector) {
         super(randomMovieSelector);
     }

@@ -1,6 +1,7 @@
 package Domain.Classes;
 
 import Domain.*;
+import Domain.Exceptions.MovieNotFoundException;
 
 public class RandomMovieSelector{
     private Model model;
@@ -9,7 +10,7 @@ public class RandomMovieSelector{
         this.model = model;
         mode = new RandomSelectorMode(this);
     }
-    public Movie execute() {
+    public Movie execute() throws MovieNotFoundException {
         String tag = mode.selectRandomMovie();
         Movie currentMovie = model.getWatchList().getMovieByTag(tag);
         URLOpener.openURL(currentMovie.getURL());
