@@ -3,8 +3,12 @@ package Presentation;
 import Domain.Model;
 import Domain.Observer;
 import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -29,7 +33,7 @@ public class MainView extends JFrame implements Observer {
     private JButton viewWatchListButton;
     public MainView(Model model){
         this.model = model;
-        FlatIntelliJLaf.setup();
+        FlatArcOrangeIJTheme.setup();
         setTitle("Main View");
         setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -61,6 +65,7 @@ public class MainView extends JFrame implements Observer {
         GridBagConstraints gbc = new GridBagConstraints();
         generateButton = new JButton("Generate");
         generateButton.setPreferredSize(new Dimension(250, 180)); // Set preferred size
+        generateButton.setBorder(BorderFactory.createLineBorder(Color.orange, 2));
         gbc.gridx = 1;
         gbc.gridy = 0;
         buttonsPanel.add(generateButton, gbc );
@@ -81,6 +86,7 @@ public class MainView extends JFrame implements Observer {
         gbc.fill = GridBagConstraints.BOTH;
         mainPanel.add(buttonsPanel, gbc);
         setComponentFont(buttonsPanel, new Font("Arial", Font.PLAIN, 16)); // Set larger font
+        generateButton.setFont(new Font("Arial", Font.PLAIN, 30));
     }
 
     private void initializeSelectorModePanel(JPanel mainPanel) {
@@ -111,7 +117,7 @@ public class MainView extends JFrame implements Observer {
         gbc.weightx = 1;
         gbc.fill = GridBagConstraints.BOTH;
         selectorAndFilterPanel.add(filterAndViewPanel);
-        selectorAndFilterPanel.add(Box.createHorizontalStrut(400));
+        selectorAndFilterPanel.add(Box.createHorizontalStrut(280));
         selectorAndFilterPanel.add(selectorModePanel);
         mainPanel.add(selectorAndFilterPanel, gbc);
         setComponentFont(selectorModePanel, new Font("Arial", Font.PLAIN, 16)); // Set larger font
