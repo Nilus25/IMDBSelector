@@ -1,5 +1,9 @@
 package Domain;
 
+import Domain.Classes.Movie;
+import Domain.Classes.RandomMovieSelector;
+import Domain.Classes.User;
+import Domain.Classes.WatchList;
 import Domain.Exceptions.*;
 import DataLayer.UserFinder;
 import DataLayer.UserGateway;

@@ -4,7 +4,6 @@ import Domain.Exceptions.UserAlreadyExistsException;
 import Domain.Exceptions.WatchListAlreadyExistsException;
 import Domain.Model;
 import Domain.Observer;
-import Domain.WatchList;
 import com.opencsv.CSVReader;
 
 import com.opencsv.exceptions.CsvValidationException;

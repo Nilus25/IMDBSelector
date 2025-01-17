@@ -1,9 +1,8 @@
-package Domain;
+package Domain.Classes;
 
 import DataLayer.WatchListGateway;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WatchList {

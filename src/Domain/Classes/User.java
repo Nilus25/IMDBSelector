@@ -1,4 +1,4 @@
-package Domain;
+package Domain.Classes;
 
 import DataLayer.UserGateway;
 

@@ -1,6 +1,6 @@
 package DataLayer;
-import Domain.Movie;
-import Domain.User;
+import Domain.Classes.Movie;
+import Domain.Classes.User;
 import com.google.gson.Gson;
 
 import java.io.FileWriter;

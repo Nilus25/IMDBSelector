@@ -10,5 +10,6 @@
     <orderEntry type="library" name="google.code.gson" level="project" />
     <orderEntry type="library" name="formdev.flatlaf.intellij.themes" level="project" />
     <orderEntry type="library" name="opencsv" level="project" />
+    <orderEntry type="library" name="junit.jupiter" level="project" />
   </component>
 </module>

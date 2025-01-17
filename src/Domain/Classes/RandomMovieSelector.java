@@ -1,4 +1,6 @@
-package Domain;
+package Domain.Classes;
+
+import Domain.*;
 
 public class RandomMovieSelector{
     private Model model;
