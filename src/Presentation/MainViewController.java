@@ -4,18 +4,18 @@ import Domain.Exceptions.MovieNotFoundException;
 import Domain.Exceptions.UserAlreadyExistsException;
 import Domain.Exceptions.WatchListAlreadyExistsException;
 import Domain.Model;
-import Domain.Observer;
 
-import java.io.IOException;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class MainViewController implements ActionListener {
     private Model model;
@@ -133,7 +133,7 @@ public class MainViewController implements ActionListener {
 
     private void throwError(String message) {
         JDialog errorDialog = new JDialog(view, "Error", true);
-        errorDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        errorDialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         errorDialog.setSize(300, 150);
         errorDialog.setLocationRelativeTo(view);
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
@@ -160,3 +160,4 @@ public class MainViewController implements ActionListener {
         model.setModeNotSeen();
     }
 }
+
