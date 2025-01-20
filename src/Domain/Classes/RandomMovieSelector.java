@@ -12,7 +12,7 @@ public class RandomMovieSelector{
     }
     public Movie execute() throws MovieNotFoundException {
         String tag = mode.selectRandomMovie();
-        Movie currentMovie = model.getWatchList().getMovieByTag(tag);
+        Movie currentMovie = model.getFilteredWatchlist().getMovieByTag(tag);
         URLOpener.openURL(currentMovie.getURL());
         return currentMovie;
     }
@@ -23,8 +23,8 @@ public class RandomMovieSelector{
         mode = new NotSeenSelectorMode(this);
     }
 
-    public WatchList getWatchList() {
-        return model.getWatchList();
+    public Watchlist getWatchList() {
+        return model.getFilteredWatchlist();
     }
     public User getUser() {
         return model.getUser();

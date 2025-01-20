@@ -37,4 +37,7 @@ public class User {
         return lastMovieGenerated;
     }
 
+    public boolean LastMovieGeneratedAlreadySeen() {
+        return seenMovies.contains(lastMovieGenerated);
+    }
 }

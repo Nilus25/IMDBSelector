@@ -47,6 +47,12 @@ public class MainViewController implements ActionListener {
     }
 
     private void handleFiltersButton() {
+        JDialog filtersDialog = new JDialog(view, "Filters", true);
+        FiltersView filtersView = model.getFiltersView();
+        filtersDialog.setContentPane(filtersView.getMainPanel());
+        filtersDialog.setSize(900, 600);
+        filtersDialog.setLocationRelativeTo(view);
+        filtersDialog.setVisible(true);
     }
 
     private void handleDeleteWatchListButton() {

@@ -12,7 +12,7 @@ public class Movie {
     private String rating;
     private String type;
     private List<String> genres;
-    public String getName() {
+    public String getTitle() {
         return title;
     }
     public String getIMDBTag() {
@@ -76,4 +76,13 @@ public class Movie {
         return IMDBTag.hashCode();
     }
 
+    public List<String> getInformation() {
+        List<String> information = new ArrayList<>();
+        information.add(title);
+        information.add(director);
+        information.add(year);
+        information.add(rating);
+        information.add(type);
+        return information;
+    }
 }

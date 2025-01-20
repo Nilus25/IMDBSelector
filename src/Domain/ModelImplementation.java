@@ -1,14 +1,12 @@
 package Domain;
 
-import Domain.Classes.Movie;
-import Domain.Classes.RandomMovieSelector;
-import Domain.Classes.User;
-import Domain.Classes.WatchList;
+import Domain.Classes.*;
 import Domain.Exceptions.*;
 import DataLayer.UserFinder;
 import DataLayer.UserGateway;
 import DataLayer.WatchListFinder;
 import DataLayer.WatchListGateway;
+import Presentation.FiltersView;
 import Presentation.MainView;
 import Presentation.MainViewController;
 
@@ -18,23 +16,35 @@ import java.util.List;
 public class ModelImplementation implements Model {
     private User user;
     private List<String> usersNames;
-    private WatchList watchList;
-    private List<String> watchListsNames;
-    private RandomMovieSelector selector;
+    private Watchlist watchlist;
+    private List<String> watchlistsNames;
+    private final RandomMovieSelector selector;
+    private Filter filter;
+    private Watchlist filteredWatchlist;
     private Movie currentMovie;
     private MainView mainView;
-    private MainViewController mainViewController;
+    private FiltersView filtersView;
     private List<Observer> observers;
+    private List<ObserverComboBoxes> observerComboBoxes;
 
     public ModelImplementation() {
         usersNames = UserFinder.getAllUsersName();
-        watchListsNames = WatchListFinder.getAllWatchListsName();
+        watchlistsNames = WatchListFinder.getAllWatchListsName();
         observers = new ArrayList<>();
+        observerComboBoxes = new ArrayList<>();
         mainView = new MainView(this);
-        mainViewController = mainView.initializeController();
+        mainView.initializeController();
         selector = new RandomMovieSelector(this);
+        filter = new Filter();
+        filtersView = new FiltersView(this);
+        filtersView.initializeController();
         addObserver(mainView);
+        addObserverComboBox(mainView);
         notifyObservers();
+    }
+
+    private void addObserverComboBox(ObserverComboBoxes observer) {
+        observerComboBoxes.add(observer);
     }
 
     public void addObserver(Observer observer) {
@@ -56,8 +66,8 @@ public class ModelImplementation implements Model {
     }
 
     @Override
-    public WatchList getWatchList() {
-        return watchList;
+    public Watchlist getWatchlist() {
+        return watchlist;
     }
 
     public void setUser(User user) {
@@ -65,10 +75,10 @@ public class ModelImplementation implements Model {
         notifyObservers();
     }
 
-    public void setWatchList(WatchList watchList) {
-        this.watchList = watchList;
-        if (watchList != null) {
-            System.out.println(watchList.getName());
+    public void setWatchlist(Watchlist watchlist) {
+        this.watchlist = watchlist;
+        if (watchlist != null) {
+            System.out.println(watchlist.getName());
         }
         notifyObservers();
     }
@@ -77,26 +87,43 @@ public class ModelImplementation implements Model {
         User user = new User(UserFinder.findUser(name));
         setUser(user);
         Movie lastMovieGenerated = user.getLastMovieGenerated();
-        if (lastMovieGenerated != null) {
-            setCurrentMovie(lastMovieGenerated);
+        if (lastMovieGenerated != null && !user.LastMovieGeneratedAlreadySeen()) {
+            mainView.throwLastMovieGeneratedForUser(lastMovieGenerated.getTitle(), lastMovieGenerated.getYear());
         }
+        notifyObserverComboBoxes();
     }
 
     @Override
     public void loadWatchList(String name) {
-        WatchList watchList = new WatchList(WatchListFinder.findWatchList(name));
-        setWatchList(watchList);
+        Watchlist watchlist = new Watchlist(WatchListFinder.findWatchList(name));
+        filter = new Filter();
+        filteredWatchlist = watchlist;
+        setWatchlist(watchlist);
+        notifyObserverComboBoxes();
+    }
+
+    @Override
+    public void filterWatchlist() {
+        filteredWatchlist = filter.filterWatchlist(watchlist);
+    }
+    @Override
+    public FiltersDTO getFilters() {
+        return filter.getFilters();
+    }
+    @Override
+    public void setFilters(FiltersDTO filters) {
+        filter.setFilters(filters);
     }
 
     @Override
     public void newWatchList(String name, String movies) throws WatchListAlreadyExistsException {
-        if (watchListsNames.contains(name)) {
-            throw new WatchListAlreadyExistsException("WatchList already exists");
+        if (watchlistsNames.contains(name)) {
+            throw new WatchListAlreadyExistsException("Watchlist already exists");
         }
-        WatchList watchList = new WatchList(name, movies);
+        Watchlist watchList = new Watchlist(name, movies);
         WatchListGateway gateway = new WatchListGateway(watchList);
         gateway.save();
-        watchListsNames.add(name);
+        watchlistsNames.add(name);
         notifyObserverComboBoxes();
         notifyObservers();
     }
@@ -114,10 +141,13 @@ public class ModelImplementation implements Model {
     }
     @Override
     public void actualizeWatchList(String movies) {
-        String name = watchList.getName();
-        WatchList watchList = new WatchList(name, movies);
-        WatchListGateway gateway = new WatchListGateway(watchList);
+        String name = this.watchlist.getName();
+        Watchlist watchlist = new Watchlist(name, movies);
+        this.watchlist = watchlist;
+        this.filteredWatchlist = filter.filterWatchlist(watchlist);
+        WatchListGateway gateway = new WatchListGateway(watchlist);
         gateway.save();
+        notifyObservers();
     }
 
     @Override
@@ -125,6 +155,26 @@ public class ModelImplementation implements Model {
         user.addMovie(currentMovie);
         UserGateway gateway = new UserGateway(user);
         gateway.save();
+    }
+    public void addLastMovieGeneratedForUserToSeen() {
+        user.addMovie(user.getLastMovieGenerated());
+        UserGateway gateway = new UserGateway(user);
+        gateway.save();
+    }
+
+    @Override
+    public List<String> getCurrentMovieInformation() {
+        return currentMovie.getInformation();
+    }
+
+    @Override
+    public FiltersView getFiltersView() {
+        return filtersView;
+    }
+
+    @Override
+    public Watchlist getFilteredWatchlist() {
+        return filteredWatchlist;
     }
 
     public void setCurrentMovie(Movie currentMovie) {
@@ -154,7 +204,7 @@ public class ModelImplementation implements Model {
     }
     @Override
     public boolean isThereWatchList() {
-        return watchList != null;
+        return watchlist != null;
     }
     @Override
     public boolean isThereUser() {
@@ -163,7 +213,7 @@ public class ModelImplementation implements Model {
 
     @Override
     public List<String> getAllWatchListsName() {
-        return watchListsNames;
+        return watchlistsNames;
     }
 
     @Override
@@ -173,7 +223,7 @@ public class ModelImplementation implements Model {
 
     @Override
     public String getCurrentMovie() {
-        return currentMovie.getName();
+        return currentMovie.getTitle();
     }
     @Override
     public String getLastMovieGenerated() {
@@ -181,15 +231,15 @@ public class ModelImplementation implements Model {
         if (lastMovieGenerated == null) {
             return "";
         }
-        return lastMovieGenerated.getName();
+        return lastMovieGenerated.getTitle();
     }
 
     @Override
     public void deleteWatchList() {
-        watchListsNames.remove(watchList.getName());
-        WatchListGateway gateway = new WatchListGateway(watchList);
+        watchlistsNames.remove(watchlist.getName());
+        WatchListGateway gateway = new WatchListGateway(watchlist);
         gateway.delete();
-        watchList = null;
+        watchlist = null;
         notifyObserverComboBoxes();
         notifyObservers();
     }
@@ -205,7 +255,7 @@ public class ModelImplementation implements Model {
     }
 
     private void notifyObserverComboBoxes() {
-        for (Observer observer : observers) {
+        for (ObserverComboBoxes observer : observerComboBoxes) {
             observer.updateComboBoxes();
         }
     }

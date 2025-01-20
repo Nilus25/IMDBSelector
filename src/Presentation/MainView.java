@@ -1,25 +1,16 @@
 package Presentation;
 
-import Domain.Exceptions.MovieNotFoundException;
-import Domain.Exceptions.UserAlreadyExistsException;
-import Domain.Exceptions.WatchListAlreadyExistsException;
 import Domain.Model;
 import Domain.Observer;
+import Domain.ObserverComboBoxes;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-public class MainView extends JFrame implements Observer {
+public class MainView extends JFrame implements Observer, ObserverComboBoxes {
     private Model model;
     private MainViewController controller;
     private JButton generateButton;
@@ -41,6 +32,8 @@ public class MainView extends JFrame implements Observer {
     private JLabel YearLabel;
     private JLabel RatingLabel;
     private JLabel MissatgesLabel;
+    private JLabel TypeLabel;
+
     static {
         FlatArcOrangeIJTheme.setup();
     }
@@ -84,7 +77,7 @@ public class MainView extends JFrame implements Observer {
         this.model = model;
     }
 
-    public MainViewController initializeController() {
+    public void initializeController() {
         this.controller = new MainViewController(model, this);
         generateButton.addActionListener(controller);
         newWatchListButton.addActionListener(controller);
@@ -100,7 +93,6 @@ public class MainView extends JFrame implements Observer {
         filtersButton.addActionListener(controller);
         viewWatchListButton.addActionListener(controller);
 
-        return controller;
     }
 
     @Override
@@ -108,28 +100,19 @@ public class MainView extends JFrame implements Observer {
         boolean hasUser = model.isThereUser();
         boolean hasWatchList = model.isThereWatchList();
         boolean hasCurrentMovie = model.isThereCurrentMovie();
-        if (hasUser){
-            userComboBox.setEditable(false);
-            userComboBox.getEditor().getEditorComponent().setEnabled(true);
-        }
-        else {
-            userComboBox.setEditable(false);
-            userComboBox.getEditor().getEditorComponent().setEnabled(false);
-        }
-        if (hasWatchList){
-            watchListComboBox.setEditable(false);
-            watchListComboBox.getEditor().getEditorComponent().setEnabled(true);
-        }
-        else {
-            watchListComboBox.setEditable(false);
-            watchListComboBox.getEditor().getEditorComponent().setEnabled(false);
-        }
         deleteUserButton.setEnabled(hasUser);
         deleteWatchListButton.setEnabled(hasWatchList);
         actualizeWatchListButton.setEnabled(hasWatchList);
         addMovieToSeenButton.setEnabled(hasUser && hasCurrentMovie);
         generateButton.setEnabled(hasUser && hasWatchList);
-
+        if (hasCurrentMovie){
+            ArrayList<String> movieInformation = (ArrayList<String>) model.getCurrentMovieInformation();
+            TitleLabel.setText("<html>Title: <b>" + movieInformation.get(0) + "</b></html>");
+            DirectorLabel.setText("<html>Director: <b>" + movieInformation.get(1) + "</b></html>");
+            YearLabel.setText("<html>Year: <b>" + movieInformation.get(2) + "</b></html>");
+            RatingLabel.setText("<html>Rating: <b>" + movieInformation.get(3) + "</b></html>");
+            TypeLabel.setText("<html>Type: <b>" + movieInformation.get(4) + "</b></html>");
+        }
     }
 
     @Override
@@ -146,6 +129,27 @@ public class MainView extends JFrame implements Observer {
         watchListComboBox.removeAllItems();
         getAllUsernames();
         getAllWatchlists();
+        boolean hasUser = model.isThereUser();
+        boolean hasWatchList = model.isThereWatchList();
+        boolean hasCurrentMovie = model.isThereCurrentMovie();
+        if (hasUser){
+            userComboBox.setSelectedItem(model.getUser().getName());
+            userComboBox.setEditable(false);
+            userComboBox.getEditor().getEditorComponent().setEnabled(true);
+        }
+        else {
+            userComboBox.setEditable(true);
+            userComboBox.getEditor().getEditorComponent().setEnabled(false);
+        }
+        if (hasWatchList){
+            watchListComboBox.setSelectedItem(model.getWatchlist().getName());
+            watchListComboBox.setEditable(false);
+            watchListComboBox.getEditor().getEditorComponent().setEnabled(true);
+        }
+        else {
+            watchListComboBox.setEditable(true);
+            watchListComboBox.getEditor().getEditorComponent().setEnabled(false);
+        }
         for (ActionListener listener : userComboBoxListeners) {
             userComboBox.addActionListener(listener);
         }
@@ -203,5 +207,20 @@ public class MainView extends JFrame implements Observer {
 
     public JButton getViewWatchListButton() {
         return viewWatchListButton;
+    }
+
+    public void throwLastMovieGeneratedForUser(String name, String year) {
+        int response = JOptionPane.showOptionDialog(
+                this,
+                "<html>The last movie generated for this user was <b>" + name + " (" + year + ")</b>.<br>Did you watch it?",                "Last Movie Generated",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new String[]{"Watched it!", "No"},
+                "Watched it!"
+        );
+        if (response == JOptionPane.YES_OPTION) {
+            model.addLastMovieGeneratedForUserToSeen();
+        }
     }
 }

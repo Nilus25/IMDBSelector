@@ -11,7 +11,7 @@ public abstract class SelectorModeAbstract implements SelectorMode {
     }
     @Override
     public String selectRandomMovie() throws MovieNotFoundException {
-        WatchList watchList = randomMovieSelector.getWatchList();
+        Watchlist watchList = randomMovieSelector.getWatchList();
         List<String> watchListTags = watchList.getTags();
         netejaMode(watchListTags);
         if (watchListTags.isEmpty()) {

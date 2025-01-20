@@ -7,30 +7,34 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WatchList {
+public class Watchlist {
     private String name;
-    private List<Movie> watchList;
-    public WatchList(String name, String watchList){
+    private List<Movie> watchlist;
+    public Watchlist(String name, String watchList){
         this.name = name;
         try {
-            this.watchList = CSVParser.parseCSV(watchList);
+            this.watchlist = CSVParser.parseCSV(watchList);
         } catch (IOException | CsvValidationException e) {
             throw new RuntimeException(e);
         }
     }
-    public WatchList(WatchListGateway watchList){
+    public Watchlist(String name){
+        this.name = name;
+        this.watchlist = new ArrayList<>();
+    }
+    public Watchlist(WatchListGateway watchList){
         this.name = watchList.getName();
-        this.watchList = watchList.getWatchList();
+        this.watchlist = watchList.getWatchList();
     }
     public String getName() {
         return name;
     }
-    public List<Movie> getWatchList() {
-        return watchList;
+    public List<Movie> getWatchlist() {
+        return watchlist;
     }
     public Movie getMovieByTitle(String name) {
-        for (Movie movie : watchList) {
-            if (movie.getName().equals(name)) {
+        for (Movie movie : watchlist) {
+            if (movie.getTitle().equals(name)) {
                 return movie;
             }
         }
@@ -39,18 +43,25 @@ public class WatchList {
 
     public List<String> getTags() {
         List<String> tags = new ArrayList<>();
-        for (Movie movie : watchList) {
+        for (Movie movie : watchlist) {
             tags.add(movie.getIMDBTag());
         }
         return tags;
     }
 
     public Movie getMovieByTag(String tag) {
-        for (Movie movie : watchList) {
+        for (Movie movie : watchlist) {
             if (movie.getIMDBTag().equals(tag)) {
                 return movie;
             }
         }
         return null;
+    }
+    public List<Movie> getMovies() {
+        return watchlist;
+    }
+
+    public void addMovie(Movie movie) {
+        watchlist.add(movie);
     }
 }

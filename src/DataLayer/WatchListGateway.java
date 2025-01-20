@@ -1,7 +1,7 @@
 package DataLayer;
 
 import Domain.Classes.Movie;
-import Domain.Classes.WatchList;
+import Domain.Classes.Watchlist;
 import com.google.gson.Gson;
 
 import java.io.FileWriter;
@@ -14,9 +14,9 @@ public class WatchListGateway {
     private String name;
     private List<Movie> watchList;
     private static final String location = "data/watchlist";
-    public WatchListGateway(WatchList watchList){
+    public WatchListGateway(Watchlist watchList){
         this.name = watchList.getName();
-        this.watchList = watchList.getWatchList();
+        this.watchList = watchList.getWatchlist();
     }
     public WatchListGateway(String name){
         this.name = name;

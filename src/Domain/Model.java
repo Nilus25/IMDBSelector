@@ -1,10 +1,12 @@
 package Domain;
 
+import Domain.Classes.FiltersDTO;
 import Domain.Classes.User;
-import Domain.Classes.WatchList;
+import Domain.Classes.Watchlist;
 import Domain.Exceptions.MovieNotFoundException;
 import Domain.Exceptions.UserAlreadyExistsException;
 import Domain.Exceptions.WatchListAlreadyExistsException;
+import Presentation.FiltersView;
 
 import java.util.List;
 
@@ -12,11 +14,17 @@ public interface Model {
 
     User getUser();
 
-    WatchList getWatchList();
+    Watchlist getWatchlist();
 
     void loadUser(String name);
 
     void loadWatchList(String name);
+
+    void filterWatchlist();
+
+    FiltersDTO getFilters();
+
+    void setFilters(FiltersDTO filters);
 
     void newWatchList(String name, String movies) throws WatchListAlreadyExistsException;
 
@@ -49,4 +57,12 @@ public interface Model {
     void deleteWatchList();
 
     void deleteUser();
+
+    void addLastMovieGeneratedForUserToSeen();
+
+    List<String> getCurrentMovieInformation();
+
+    FiltersView getFiltersView();
+
+    Watchlist getFilteredWatchlist();
 }
